@@ -1,72 +1,68 @@
 #include "Game.h"
 #include <iostream>
 
-Game::Game() : player1("images/Samurai/Samurai.png", true), player2("images/Samurai/Samurai.png", false) {
+Game::Game() : player1("images/Samurai/Samurai.png", true), player2("images/Samurai/Samurai.png", false),
+window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Harikiri", sf::Style::Close)
+{
+	if (!mapTexture.loadFromFile("images/Map/green.png")) {
+		std::cerr << "Couldn't load background image!" << std::endl;
+	}
 
+	mapTextureSize = mapTexture.getSize();
+	windowSize = window.getSize();
+
+	float scaleX = (float)windowSize.x / mapTextureSize.x;
+	float scaleY = (float)windowSize.y / mapTextureSize.y;
+
+	mapSprite.setTexture(mapTexture);
+	mapSprite.setScale(scaleX, scaleY);
+	deltaTime = 0.0f;
 }
 
-void Game::checkCollision() {
-	// Player1 hitting player2
-	sf::FloatRect swordBounds1 = player1.getSwordHitBox().getGlobalBounds();
-	sf::FloatRect player2Bounds = player2.getSprite().getGlobalBounds();
-
-	// Player2 hittin player1
-	sf::FloatRect swordBounds2 = player2.getSwordHitBox().getGlobalBounds();
-	sf::FloatRect player1Bounds = player1.getSprite().getGlobalBounds();
-
-	if (swordBounds1.intersects(player2Bounds) && player1.getIsAttacking()) {
-		if (!player2.getIsDamaged()) {
-			player2.takeDamage(10);
-			player2.setIsDamaged(true);
+void Game::run() {
+	while (window.isOpen()) {
+		sf::Event event;
+		while (window.pollEvent(event)) {
+			if (event.type == sf::Event::Closed) {
+				window.close();
+			}
 		}
-	}
 
-	if (swordBounds2.intersects(player1Bounds) && player2.getIsAttacking()) {
-		if (!player1.getIsDamaged()) {
-			player1.takeDamage(10);
-			player1.setIsDamaged(true);
-		}
+		update();
+		draw();
 	}
 }
 
-void Game::keyboardEvents(sf::RenderWindow& window) {
-	// Player1
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		player1.attack();
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-		player1.defend();
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		player1.jump();
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && player1.getSprite().getPosition().x <= window.getSize().x) {
-		player1.move(true);
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && player1.getSprite().getPosition().x >= 0) {
-		player1.move(false);
-	}
-
-	// Player2
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::K))
-		player2.attack();
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
-		player2.defend();
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		player2.jump();
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && player2.getSprite().getPosition().x <= window.getSize().x)
-		player2.move(true);
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && player2.getSprite().getPosition().x >= 0)
-		player2.move(false);
+void Game::handleInput(Player& player, sf::Keyboard::Key attackKey, sf::Keyboard::Key defendKey, sf::Keyboard::Key jumpKey, sf::Keyboard::Key moveRightKey, sf::Keyboard::Key moveLeftKey) {
+	if (sf::Keyboard::isKeyPressed(attackKey)) player.attack();
+	else if (sf::Keyboard::isKeyPressed(defendKey)) player.defend();
+	else if (sf::Keyboard::isKeyPressed(jumpKey)) player.jump(deltaTime);
+	else if (sf::Keyboard::isKeyPressed(moveRightKey) && player.getSprite().getPosition().x <= windowSize.x) player.move(true, deltaTime);
+	else if (sf::Keyboard::isKeyPressed(moveLeftKey) && player.getSprite().getPosition().x >= 0) player.move(false, deltaTime);
 }
 
-void Game::update(sf::RenderWindow& window) {
-	keyboardEvents(window);
-	checkCollision();
-	player1.update();
-	player2.update();
+
+void Game::update() {
+	deltaTime = clock.restart().asSeconds();
+	handleInput(player1, sf::Keyboard::Space, sf::Keyboard::LShift, sf::Keyboard::W, sf::Keyboard::D, sf::Keyboard::A);
+	handleInput(player2, sf::Keyboard::K, sf::Keyboard::L, sf::Keyboard::Up, sf::Keyboard::Right, sf::Keyboard::Left);
+	// Check sword collision
+	if (CollisionManager::checkSwordCollision(player1, player2) && player1.getIsAttacking()) {
+		player2.takeDamage(10);  
+	}
+	if (CollisionManager::checkSwordCollision(player2, player1) && player2.getIsAttacking()) {
+		player1.takeDamage(10);  
+	}
+	player1.update(deltaTime);
+	player2.update(deltaTime);
 }
 
-void Game::draw(sf::RenderWindow& window) {
+void Game::draw() {
+	window.clear();
+	window.draw(mapSprite);
 	player1.draw(window);
 	player2.draw(window);
+	window.display();
 }
  
 

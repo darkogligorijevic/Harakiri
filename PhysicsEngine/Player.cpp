@@ -4,8 +4,9 @@
 // Constructor
 Player::Player(std::string texturePath, bool isSamurai)
 	: isAttacking(false), isAlive(true), firstAttackFrame(0, 384, 128, 128), idleFrame(0, 128, 128, 128), isDefending(false),
-	defendFrame(0, 512, 128, 128), isJumping(false), jumpFrame(0, 0, 128, 128), deathFrame(0, 256, 128, 128), health(100000),
-	secondAttackFrame(0, 768, 128, 128), thirdAttackFrame(0, 896, 128, 128), moveFrame(0, 640, 128, 128), isMoving(false), isDamaged(false)
+	defendFrame(0, 512, 128, 128), isJumping(false), jumpFrame(0, 0, 128, 128), deathFrame(0, 256, 128, 128), health(100),
+	secondAttackFrame(0, 768, 128, 128), thirdAttackFrame(0, 896, 128, 128), moveFrame(0, 640, 128, 128), isMoving(false), isDamaged(false),
+	velocity(0.0f, 0.0f)
 {
 	
 	if (!texture.loadFromFile(texturePath)) {
@@ -14,27 +15,22 @@ Player::Player(std::string texturePath, bool isSamurai)
 
 	sprite.setTexture(texture);
 	sprite.setOrigin(64.0f, 0.0f);
-	if (isSamurai) {
-		sprite.setPosition(100, 400);
-		sprite.setScale(2.0f, 2.0f);
-	}
-	else {
-		sprite.setPosition(1700, 400);
-		sprite.setScale(-2.0f, 2.0f);
-	}
-
-	if (isSamurai)
-		isFacingRight = true;
-	else
-		isFacingRight = false;
+	
+	sprite.setPosition(isSamurai ? PLAYER1_START_POS : PLAYER2_START_POS);
+	sprite.setScale(2.0f, 2.0f);
+	isSamurai ? isFacingRight = true : isFacingRight = false;
 
 	swordHitBox.setFillColor(sf::Color::Transparent);
-	swordHitBox.setSize(sf::Vector2f(85.0f, 150.0f));
+	swordHitBox.setSize(SWORD_HB_SIZE);
+
+	// HUD
+	healthHUD.setFillColor(sf::Color::Red);
+	healthHUD.setSize(sf::Vector2f(health, 20.0f));
+
 	
 	sprite.setTextureRect(idleFrame);
 	clock.restart();
 }
-
 
 // Actions
 void Player::attack() {
@@ -51,19 +47,36 @@ void Player::defend() {
 	}
 }
 
-void Player::jump() {
-	if (isAlive) {
+void Player::jump(float deltaTime) {
+	if (isAlive && !isJumping && sprite.getPosition().y == 725) {  
 		resetState();
+		velocity.y = -JUMP_SPEED;
 		isJumping = true;
 	}
+
+	if (isJumping) {
+		velocity.y += GRAVITY * deltaTime;
+	}
+
+	sprite.move(0, velocity.y * deltaTime);
+
+
+	
+	if (sprite.getPosition().y >= 725) {
+		std::cout << " LANDEDDDD!!!!!";
+		sprite.setPosition(sprite.getPosition().x, 725);  
+		velocity.y = 0.0f; 
+		isJumping = false;  
+	}
 }
+
 
 void Player::die() {
 	isAlive = false;
 }
 
-void Player::move(bool isRight) {
-	float deltaTime = clock.getElapsedTime().asSeconds();
+void Player::move(bool isRight, float deltaTime) {
+	//float deltaTime = clock.getElapsedTime().asSeconds();
 	float moveSpeed = 800.0f;
 
 	if (isAlive) {
@@ -100,7 +113,7 @@ void Player::move(bool isRight) {
 
 void Player::takeDamage(int damage) {
 	if (isAlive && !isDamaged) { 
-		isDamaged = true; // Aktiviraj imunost
+		isDamaged = true; 
 		health -= damage;
 		std::cout << "Player took damage! Current health: " << health << std::endl;
 
@@ -186,6 +199,7 @@ void Player::animateJump(float frameSpeed) {
 	jumpElapsed += clock.getElapsedTime().asSeconds();
 	if (isAlive && isJumping) {
 		if (jumpElapsed > frameSpeed) {
+
 			if (jumpFrame.left == 1408) {
 				jumpFrame.left = 0;
 				isJumping = false;
@@ -247,14 +261,14 @@ void Player::animateIdle(float frameSpeed) {
 int attackCounter = 0; // for debuging
 
 // Display
-void Player::update() {
-	float deltaTime = clock.restart().asSeconds();
-	moveElapsed += deltaTime;
-	attackElapsed += deltaTime;
-	defendElapsed += deltaTime;
-	jumpElapsed += deltaTime;
-	idleElapsed += deltaTime;
-	deathElapsed += deltaTime;
+void Player::update(float deltaTime) {
+	float deltaTimeAnimations = clock.restart().asSeconds();
+	moveElapsed += deltaTimeAnimations;
+	attackElapsed += deltaTimeAnimations;
+	defendElapsed += deltaTimeAnimations;
+	jumpElapsed += deltaTimeAnimations;
+	idleElapsed += deltaTimeAnimations;
+	deathElapsed += deltaTimeAnimations;
 
 	if (isAlive) {
 		if (isAttacking) {
@@ -286,16 +300,19 @@ void Player::update() {
 			animateDefend(0.1f);
 		}
 		else if (isJumping) {
-			animateJump(0.05f);
+			jump(deltaTime);
+			animateJump(0.1f);
 		}
 		else {
-			animateIdle(0.1f);
+			animateIdle(0.5f);
 		}
 		updateSwordHitBox();
+		
 	}
 	else {
 		animateDeath(1.0f);
 	}
+	updateHealthHUD();
 }
 
 
@@ -309,15 +326,21 @@ void Player::resetState() {
 void Player::draw(sf::RenderWindow& window) {
 	window.draw(sprite);
 	window.draw(swordHitBox);
+	window.draw(healthHUD);
 }
 
 void Player::updateSwordHitBox() {
 	if (isFacingRight) {
-		swordHitBox.setPosition(sf::Vector2f(sprite.getPosition().x + 30.0f, sprite.getPosition().y + 100.0f));
+		swordHitBox.setPosition(sf::Vector2f(sprite.getPosition().x - 35, sprite.getPosition().y + 100.0f));
 	}
 	else {
-		swordHitBox.setPosition(sf::Vector2f(sprite.getPosition().x - 130.0f, sprite.getPosition().y + 100.0f));
+		swordHitBox.setPosition(sf::Vector2f(sprite.getPosition().x - 35, sprite.getPosition().y + 100.0f));
 	}
+}
+
+void Player::updateHealthHUD() {
+	healthHUD.setPosition(sprite.getPosition().x - 50.0f, sprite.getPosition().y + 50.0f);
+	healthHUD.setSize(sf::Vector2f(health, 10.0f));
 }
 
 sf::RectangleShape Player::getSwordHitBox() {

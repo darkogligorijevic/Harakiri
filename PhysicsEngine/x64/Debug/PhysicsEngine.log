@@ -1,2 +1,12 @@
-﻿  Game.cpp
+﻿  Player.cpp
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(28,33): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(28,33): warning C4244:         with
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(28,33): warning C4244:         [
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(28,33): warning C4244:             T=float
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(28,33): warning C4244:         ]
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(344,33): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(344,33): warning C4244:         with
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(344,33): warning C4244:         [
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(344,33): warning C4244:             T=float
+C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(344,33): warning C4244:         ]
   PhysicsEngine.vcxproj -> C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\x64\Debug\PhysicsEngine.exe

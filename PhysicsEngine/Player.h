@@ -1,13 +1,16 @@
 ﻿#ifndef PLAYER_H
 #define PLAYER_H
 #include <SFML/Graphics.hpp>
+#include "Constants.h"
 
 class Player {
 private:
+	sf::Vector2f velocity;
 	sf::RectangleShape swordHitBox;
 	sf::Sprite sprite;
 	sf::Texture texture;
 	sf::IntRect firstAttackFrame, secondAttackFrame, thirdAttackFrame, idleFrame, defendFrame, jumpFrame, deathFrame, moveFrame;
+	sf::RectangleShape healthHUD;
 	bool isAttacking;
 	bool isAlive;
 	bool isDefending;
@@ -18,7 +21,7 @@ private:
 	int health;
 	sf::Clock clock;
 	float moveElapsed = 0.0f, attackElapsed = 0.0f, defendElapsed = 0.0f, jumpElapsed = 0.0f, idleElapsed = 0.0f, deathElapsed = 0.0f;
-	float damageCooldown = 1.0f;
+	float damageCooldown = 0.2f;
 	float damageTimer = 0.0f;
 public:
 
@@ -27,9 +30,9 @@ public:
 	// Actions
 	void attack();
 	void defend();
-	void jump();
+	void jump(float deltaTime);
 	void die();
-	void move(bool isRight);
+	void move(bool isRight, float deltaTime);
 	void takeDamage(int damage);
 
 	// Animations
@@ -45,8 +48,9 @@ public:
 	// Display
 	void resetState();
 	void draw(sf::RenderWindow& window);
-	void update();
+	void update(float deltaTime);
 	void updateSwordHitBox();
+	void updateHealthHUD();
 
 	// Getters
 	sf::RectangleShape getSwordHitBox();
