@@ -48,27 +48,27 @@ void Player::defend() {
 }
 
 void Player::jump(float deltaTime) {
-	if (isAlive && !isJumping && sprite.getPosition().y == 725) {  
+	if (isAlive && !isJumping && sprite.getPosition().y == 725) {
 		resetState();
-		velocity.y = -JUMP_SPEED;
+		velocity.y = -JUMP_SPEED;  // Početna vertikalna brzina
 		isJumping = true;
 	}
 
 	if (isJumping) {
-		velocity.y += GRAVITY * deltaTime;
+		velocity.y += GRAVITY * deltaTime;  // Ažuriraj gravitaciju
+		sprite.move(velocity.x * deltaTime, velocity.y * deltaTime);  // Pomeri sprite po X i Y osi
 	}
 
-	sprite.move(0, velocity.y * deltaTime);
-
-
-	
+	// Provera za povratak na zemlju
 	if (sprite.getPosition().y >= 725) {
-		std::cout << " LANDEDDDD!!!!!";
-		sprite.setPosition(sprite.getPosition().x, 725);  
-		velocity.y = 0.0f; 
-		isJumping = false;  
+		sprite.setPosition(sprite.getPosition().x, 725);  // Resetuj Y poziciju
+		velocity.y = 0.0f;  // Zaustavi vertikalnu brzinu
+		velocity.x = 0.0f;  // Zaustavi horizontalnu brzinu
+		isJumping = false;  // Skok je završen
 	}
 }
+
+
 
 
 void Player::die() {
@@ -77,19 +77,18 @@ void Player::die() {
 
 void Player::move(bool isRight, float deltaTime) {
 	//float deltaTime = clock.getElapsedTime().asSeconds();
-	float moveSpeed = 800.0f;
 
 	if (isAlive) {
 
 		if (isRight) {
 			sprite.setScale(2.0f, 2.0f);
-			sprite.move(moveSpeed * deltaTime, 0);
+			sprite.move(MOVE_SPEED * deltaTime, 0);
 			isMoving = true;
 			isFacingRight = true;
 		}
 		else if (!isRight) {
 			sprite.setScale(-2.0f, 2.0f);
-			sprite.move(-moveSpeed * deltaTime, 0);
+			sprite.move(-MOVE_SPEED * deltaTime, 0);
 			isMoving = true;
 			isFacingRight = false;
 		}
@@ -196,22 +195,21 @@ void Player::animateDefend(float frameSpeed) {
 }
 
 void Player::animateJump(float frameSpeed) {
-	jumpElapsed += clock.getElapsedTime().asSeconds();
 	if (isAlive && isJumping) {
+		jumpElapsed += clock.getElapsedTime().asSeconds();
 		if (jumpElapsed > frameSpeed) {
-
-			if (jumpFrame.left == 1408) {
+			if (jumpFrame.left == 1408) {  // Kraj animacije
 				jumpFrame.left = 0;
-				isJumping = false;
 			}
 			else {
-				jumpFrame.left += 128;
+				jumpFrame.left += 128;  // Pomeri na sledeći frame
 			}
 			sprite.setTextureRect(jumpFrame);
 			jumpElapsed = 0.0f;
 		}
 	}
 }
+
 
 void Player::animateMove(float frameSpeed) {
 	moveElapsed += clock.getElapsedTime().asSeconds();
@@ -272,6 +270,7 @@ void Player::update(float deltaTime) {
 
 	if (isAlive) {
 		if (isAttacking) {
+			// Animacija napada
 			if (attackCounter == 0) {
 				animateFirstAttack(0.05f);
 				if (!isAttacking) attackCounter = 1;
@@ -294,26 +293,29 @@ void Player::update(float deltaTime) {
 			}
 		}
 
-		if (isMoving) {
-			animateMove(0.025f);  
-		} else if (isDefending) {
-			animateDefend(0.1f);
+		if (isJumping) {
+			jump(deltaTime);  // Ažuriraj fiziku skoka
+			animateJump(0.08f);  // Animiraj skok
 		}
-		else if (isJumping) {
-			jump(deltaTime);
-			animateJump(0.1f);
+		else if (isMoving) {
+			animateMove(0.025f);  // Animacija kretanja
+		}
+		else if (isDefending) {
+			animateDefend(0.1f);
 		}
 		else {
 			animateIdle(0.5f);
 		}
-		updateSwordHitBox();
-		
+
+		updateSwordHitBox();  // Ažuriraj hitbox mača
 	}
 	else {
-		animateDeath(1.0f);
+		animateDeath(1.0f);  // Animacija smrti
 	}
-	updateHealthHUD();
+
+	updateHealthHUD();  // Ažuriraj HUD
 }
+
 
 
 void Player::resetState() {
@@ -371,4 +373,12 @@ void Player::setIsDamaged(bool state) {
 
 void Player::setIsAttacking(bool state) {
 	isAttacking = state;
+}
+
+sf::Vector2f Player::getVelocity() {
+	return velocity;
+}
+
+void Player::setVelocity(sf::Vector2f value) {
+	velocity = value;
 }

@@ -58,10 +58,12 @@ public:
 	bool getIsDamaged();
 	int getHealth();
 	bool getIsAttacking();
+	sf::Vector2f getVelocity();
 
 	// Setters
 	void setIsDamaged(bool state);
 	void setIsAttacking(bool state);
+	void setVelocity(sf::Vector2f value);
 };
 
 #endif
