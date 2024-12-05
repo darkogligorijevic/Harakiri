@@ -27,6 +27,7 @@ public:
 
 	// Constructor
 	Player(std::string texturePath, bool isSamurai);
+
 	// Actions
 	void attack();
 	void defend();
@@ -45,7 +46,7 @@ public:
 	void animateDeath(float frameSpeed);
 	void animateMove(float frameSpeed);
 	
-	// Display
+	// Display and Updates
 	void resetState();
 	void draw(sf::RenderWindow& window);
 	void update(float deltaTime);

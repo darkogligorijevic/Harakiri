@@ -9,26 +9,32 @@ Player::Player(std::string texturePath, bool isSamurai)
 	velocity(0.0f, 0.0f)
 {
 	
+	// Load texture
 	if (!texture.loadFromFile(texturePath)) {
 		std::cerr << "Image loading failed!" << std::endl;
 	}
 
+	// Set texture
 	sprite.setTexture(texture);
 	sprite.setOrigin(64.0f, 0.0f);
 	
+	// Initialize position and sclale for sprite
 	sprite.setPosition(isSamurai ? PLAYER1_START_POS : PLAYER2_START_POS);
 	sprite.setScale(2.0f, 2.0f);
 	isSamurai ? isFacingRight = true : isFacingRight = false;
 
+	// Initialize HitBox
 	swordHitBox.setFillColor(sf::Color::Transparent);
 	swordHitBox.setSize(SWORD_HB_SIZE);
 
-	// HUD
+	// Initialize HUD
 	healthHUD.setFillColor(sf::Color::Red);
 	healthHUD.setSize(sf::Vector2f(health, 20.0f));
 
-	
+	// Set base texture (idle) for sprite
 	sprite.setTextureRect(idleFrame);
+
+	// Restart clock
 	clock.restart();
 }
 
@@ -48,36 +54,32 @@ void Player::defend() {
 }
 
 void Player::jump(float deltaTime) {
+	// Check if current player is on ground
 	if (isAlive && !isJumping && sprite.getPosition().y == 725) {
 		resetState();
-		velocity.y = -JUMP_SPEED;  // Početna vertikalna brzina
+		velocity.y = -JUMP_SPEED;  
 		isJumping = true;
 	}
 
 	if (isJumping) {
-		velocity.y += GRAVITY * deltaTime;  // Ažuriraj gravitaciju
-		sprite.move(velocity.x * deltaTime, velocity.y * deltaTime);  // Pomeri sprite po X i Y osi
+		velocity.y += GRAVITY * deltaTime;  
+		sprite.move(velocity.x * deltaTime, velocity.y * deltaTime); 
 	}
 
-	// Provera za povratak na zemlju
+	
 	if (sprite.getPosition().y >= 725) {
-		sprite.setPosition(sprite.getPosition().x, 725);  // Resetuj Y poziciju
-		velocity.y = 0.0f;  // Zaustavi vertikalnu brzinu
-		velocity.x = 0.0f;  // Zaustavi horizontalnu brzinu
-		isJumping = false;  // Skok je završen
+		sprite.setPosition(sprite.getPosition().x, 725); 
+		velocity.y = 0.0f;  
+		velocity.x = 0.0f;  
+		isJumping = false;
 	}
 }
-
-
-
 
 void Player::die() {
 	isAlive = false;
 }
 
 void Player::move(bool isRight, float deltaTime) {
-	//float deltaTime = clock.getElapsedTime().asSeconds();
-
 	if (isAlive) {
 
 		if (isRight) {
@@ -198,11 +200,11 @@ void Player::animateJump(float frameSpeed) {
 	if (isAlive && isJumping) {
 		jumpElapsed += clock.getElapsedTime().asSeconds();
 		if (jumpElapsed > frameSpeed) {
-			if (jumpFrame.left == 1408) {  // Kraj animacije
+			if (jumpFrame.left == 1408) { 
 				jumpFrame.left = 0;
 			}
 			else {
-				jumpFrame.left += 128;  // Pomeri na sledeći frame
+				jumpFrame.left += 128;  
 			}
 			sprite.setTextureRect(jumpFrame);
 			jumpElapsed = 0.0f;
@@ -258,7 +260,7 @@ void Player::animateIdle(float frameSpeed) {
 
 int attackCounter = 0; // for debuging
 
-// Display
+// Display and Updates
 void Player::update(float deltaTime) {
 	float deltaTimeAnimations = clock.restart().asSeconds();
 	moveElapsed += deltaTimeAnimations;
@@ -270,7 +272,6 @@ void Player::update(float deltaTime) {
 
 	if (isAlive) {
 		if (isAttacking) {
-			// Animacija napada
 			if (attackCounter == 0) {
 				animateFirstAttack(0.05f);
 				if (!isAttacking) attackCounter = 1;
@@ -294,11 +295,11 @@ void Player::update(float deltaTime) {
 		}
 
 		if (isJumping) {
-			jump(deltaTime);  // Ažuriraj fiziku skoka
-			animateJump(0.08f);  // Animiraj skok
+			jump(deltaTime);  
+			animateJump(0.08f);  
 		}
 		else if (isMoving) {
-			animateMove(0.025f);  // Animacija kretanja
+			animateMove(0.025f); 
 		}
 		else if (isDefending) {
 			animateDefend(0.1f);
@@ -307,13 +308,13 @@ void Player::update(float deltaTime) {
 			animateIdle(0.5f);
 		}
 
-		updateSwordHitBox();  // Ažuriraj hitbox mača
+		updateSwordHitBox();  
 	}
 	else {
-		animateDeath(1.0f);  // Animacija smrti
+		animateDeath(1.0f);  
 	}
 
-	updateHealthHUD();  // Ažuriraj HUD
+	updateHealthHUD();  
 }
 
 
@@ -345,6 +346,7 @@ void Player::updateHealthHUD() {
 	healthHUD.setSize(sf::Vector2f(health, 10.0f));
 }
 
+// Getters
 sf::RectangleShape Player::getSwordHitBox() {
 	return swordHitBox;
 }
@@ -365,6 +367,11 @@ bool Player::getIsAttacking() {
 	return isAttacking;
 }
 
+sf::Vector2f Player::getVelocity() {
+	return velocity;
+}
+
+// Setters
 void Player::setIsDamaged(bool state) {
 	isDamaged = false;
 	if (state)
@@ -373,10 +380,6 @@ void Player::setIsDamaged(bool state) {
 
 void Player::setIsAttacking(bool state) {
 	isAttacking = state;
-}
-
-sf::Vector2f Player::getVelocity() {
-	return velocity;
 }
 
 void Player::setVelocity(sf::Vector2f value) {

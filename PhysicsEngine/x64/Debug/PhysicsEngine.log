@@ -1,7 +1,9 @@
-﻿  CollisionManager.cpp
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (PhysicsEngine.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  CollisionManager.cpp
   Game.cpp
 C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Game.cpp(5,36): warning C4244: 'argument': conversion from 'const float' to 'unsigned int', possible loss of data
 C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Game.cpp(5,22): warning C4244: 'argument': conversion from 'const float' to 'unsigned int', possible loss of data
+  main.cpp
   Player.cpp
 C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(28,33): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
 C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(28,33): warning C4244:         with
@@ -13,6 +15,5 @@ C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\P
 C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(345,33): warning C4244:         [
 C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(345,33): warning C4244:             T=float
 C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\PhysicsEngine\Player.cpp(345,33): warning C4244:         ]
-  main.cpp
   Generating Code...
-  PhysicsEngine.vcxproj -> C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\x64\Debug\PhysicsEngine.exe
+  PhysicsEngine.vcxproj -> C:\Users\darko\OneDrive\Desktop\builds\C++\PhysicsEngineSolution\x64\Debug\Harakiri.exe
